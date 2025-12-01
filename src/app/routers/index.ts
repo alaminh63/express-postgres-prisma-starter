@@ -17,7 +17,8 @@ const moduleRoutes = [
   {
     path: '/demo-modules',
     route: DemoModuleRoutes
-  }
+  },
+  
 ]
 
 /**
