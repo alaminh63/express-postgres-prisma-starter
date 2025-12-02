@@ -3,5 +3,6 @@
  * Defines the structure of the JWT payload used in authentication
  */
 export type TJwtPayload = {
-  id: string
+  id: number
+  email: string
 }

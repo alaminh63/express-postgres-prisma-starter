@@ -2,6 +2,13 @@
 // ENUMS FOR MULTIVENDOR E-COMMERCE PLATFORM
 // =====================================================
 
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+  DELETED
+}
+
 enum OtpPurpose {
   LOGIN
   REGISTER

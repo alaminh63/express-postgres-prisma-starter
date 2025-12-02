@@ -20,7 +20,7 @@ model Order {
   updatedAt     DateTime     @updatedAt @map("updated_at")
 
   user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  address         UserAddress         @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  address         UserAddress         @relation(fields: [addressId], references: [id], onDelete: Restrict)
   coupon          Coupon?             @relation(fields: [couponId], references: [id], onDelete: SetNull)
   items           OrderItem[]
   statusHistory   OrderStatusHistory[]
