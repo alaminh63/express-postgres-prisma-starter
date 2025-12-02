@@ -30,7 +30,12 @@ const config = {
 
   // PostgreSQL configuration
   database_url: ensureEnv('DATABASE_URL'),
-
+  // Cloudinary configuration
+  cloudinary: {
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY
+},
   // Authentication configuration
   bcrypt_salt_rounds: Number(ensureEnv('BCRYPT_SALT_ROUNDS')),
   jwt_access_token_secret: ensureEnv('JWT_ACCESS_TOKEN_SECRET'),
