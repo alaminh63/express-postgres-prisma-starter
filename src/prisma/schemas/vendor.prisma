@@ -1,0 +1,39 @@
+// =====================================================
+// VENDOR MODULE
+// =====================================================
+
+model Vendor {
+  id               Int       @id @default(autoincrement())
+  userId           Int       @unique @map("user_id")
+  shopName         String    @map("shop_name")
+  slug             String    @unique
+  logoUrl          String?   @map("logo_url")
+  bannerUrl        String?   @map("banner_url")
+  businessEmail    String?   @map("business_email")
+  businessPhone    String?   @map("business_phone")
+  documentUrls     String[]  @map("document_urls")
+  bankAccountNumber String?  @map("bank_account_number")
+  bankIfsc         String?   @map("bank_ifsc")
+  bankName         String?   @map("bank_name")
+  commissionPercent Int      @default(5) @map("commission_percent")
+  status           VendorStatus
+  ratingAvg        Decimal   @default(0.00) @map("rating_avg") @db.Decimal(3, 2)
+  totalOrders      Int       @default(0) @map("total_orders")
+  totalSales       Decimal   @default(0.00) @map("total_sales") @db.Decimal(10, 2)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products          Product[]
+  orderItems        OrderItem[]
+  chatThreads       ChatThread[]
+  wallet            VendorWallet?
+  withdrawalRequests WithdrawalRequest[]
+
+  @@index([userId])
+  @@index([slug])
+  @@index([status])
+  @@index([createdAt])
+  @@map("vendor")
+}
+

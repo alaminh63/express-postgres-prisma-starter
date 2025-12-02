@@ -1,0 +1,66 @@
+// =====================================================
+// PAYMENTS & SHIPPING
+// =====================================================
+
+model Payment {
+  id           Int                   @id @default(autoincrement())
+  orderId      Int                   @map("order_id")
+  provider     PaymentProvider
+  transactionId String?              @map("transaction_id")
+  paymentMethod String?              @map("payment_method")
+  amount       Decimal               @db.Decimal(10, 2)
+  status       PaymentTransactionStatus
+  paymentDate  DateTime?             @map("payment_date")
+  refundAmount Decimal               @default(0.00) @map("refund_amount") @db.Decimal(10, 2)
+  refundDate   DateTime?             @map("refund_date")
+  metadata     Json?                 @db.JsonB
+  createdAt    DateTime              @default(now()) @map("created_at")
+  updatedAt    DateTime              @updatedAt @map("updated_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([status])
+  @@index([provider])
+  @@index([transactionId])
+  @@map("payment")
+}
+
+model Shipment {
+  id                  Int            @id @default(autoincrement())
+  orderItemId         Int            @unique @map("order_item_id")
+  courierPartner      String?        @map("courier_partner")
+  trackingNumber      String?        @unique @map("tracking_number")
+  trackingUrl         String?        @map("tracking_url")
+  status              ShipmentStatus
+  estimatedDeliveryDate DateTime?    @map("estimated_delivery_date") @db.Date
+  actualDeliveryDate  DateTime?      @map("actual_delivery_date")
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@index([orderItemId])
+  @@index([trackingNumber])
+  @@index([status])
+  @@map("shipment")
+}
+
+model ShippingRate {
+  id                  Int       @id @default(autoincrement())
+  country             String    @default("India")
+  state               String?
+  city                String?
+  pincode             String?
+  rate                Decimal   @db.Decimal(10, 2)
+  freeShippingThreshold Decimal? @map("free_shipping_threshold") @db.Decimal(10, 2)
+  isActive            Boolean   @default(true) @map("is_active")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  @@index([country])
+  @@index([pincode])
+  @@index([isActive])
+  @@map("shipping_rate")
+}
+
