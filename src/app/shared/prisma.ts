@@ -1,5 +1,5 @@
-import { PrismaClient } from '../../../generated/prisma'
-import { Pool } from 'pg'
+  import { PrismaClient } from '@prisma/client'
+  import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 
 const pool = new Pool({
@@ -10,7 +10,24 @@ const adapter = new PrismaPg(pool)
 
 const prisma = new PrismaClient({
   adapter,
-  log: ['query', 'info', 'warn', 'error']
+  log: [
+    {
+        emit: 'event',
+        level: 'query',
+    },
+    {
+        emit: 'event',
+        level: 'error',
+    },
+    {
+        emit: 'event',
+        level: 'info',
+    },
+    {
+        emit: 'event',
+        level: 'warn',
+    },
+] as any,
 })
 
 export default prisma

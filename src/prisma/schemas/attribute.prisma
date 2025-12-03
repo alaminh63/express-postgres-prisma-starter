@@ -1,0 +1,30 @@
+// =====================================================
+// ATTRIBUTES (Color, Size, etc.)
+// =====================================================
+
+model Attribute {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  displayName String?   @map("display_name")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  values AttributeValue[]
+
+  @@map("attribute")
+}
+
+model AttributeValue {
+  id          Int       @id @default(autoincrement())
+  attributeId Int       @map("attribute_id")
+  value       String
+  displayValue String?  @map("display_value")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  attribute           Attribute                  @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  productVariantAttrs ProductVariantAttribute[]
+
+  @@unique([attributeId, value])
+  @@index([attributeId])
+  @@map("attribute_value")
+}
+

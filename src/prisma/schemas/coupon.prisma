@@ -1,0 +1,49 @@
+// =====================================================
+// COUPONS
+// =====================================================
+
+model Coupon {
+  id            Int          @id @default(autoincrement())
+  code          String       @unique
+  discountType  DiscountType @map("discount_type")
+  discountValue Decimal      @map("discount_value") @db.Decimal(10, 2)
+  minPurchase   Decimal      @default(0.00) @map("min_purchase") @db.Decimal(10, 2)
+  maxDiscount   Decimal?     @map("max_discount") @db.Decimal(10, 2)
+  usageLimit    Int?         @map("usage_limit")
+  usageCount    Int          @default(0) @map("usage_count")
+  validFrom     DateTime?    @map("valid_from")
+  validTo       DateTime?    @map("valid_to")
+  isActive      Boolean      @default(true) @map("is_active")
+  createdBy     Int?         @map("created_by")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  creator     User?         @relation("CouponCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  orders      Order[]
+  usages      CouponUsage[]
+
+  @@index([code])
+  @@index([isActive])
+  @@index([validFrom])
+  @@index([validTo])
+  @@map("coupon")
+}
+
+model CouponUsage {
+  id        Int      @id @default(autoincrement())
+  couponId Int      @map("coupon_id")
+  userId   Int      @map("user_id")
+  orderId  Int      @map("order_id")
+  usedAt   DateTime @default(now()) @map("used_at")
+
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, userId])
+  @@index([couponId])
+  @@index([userId])
+  @@index([orderId])
+  @@map("coupon_usage")
+}
+

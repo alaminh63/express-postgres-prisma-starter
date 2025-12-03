@@ -1,0 +1,64 @@
+// =====================================================
+// VENDOR WALLET & PAYOUTS
+// =====================================================
+
+model VendorWallet {
+  id            Int       @id @default(autoincrement())
+  vendorId      Int       @unique @map("vendor_id")
+  balance       Decimal   @default(0.00) @db.Decimal(10, 2)
+  pendingBalance Decimal  @default(0.00) @map("pending_balance") @db.Decimal(10, 2)
+  totalEarned   Decimal   @default(0.00) @map("total_earned") @db.Decimal(10, 2)
+  totalWithdrawn Decimal  @default(0.00) @map("total_withdrawn") @db.Decimal(10, 2)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  vendor        Vendor                  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  transactions  VendorWalletTransaction[] @relation("WalletTransactions")
+
+  @@index([vendorId])
+  @@map("vendor_wallet")
+}
+
+model VendorWalletTransaction {
+  id          Int                    @id @default(autoincrement())
+  vendorId    Int                    @map("vendor_id")
+  type        WalletTransactionType
+  amount      Decimal                @db.Decimal(10, 2)
+  description String?
+  orderId     Int?                   @map("order_id")
+  orderItemId Int?                   @map("order_item_id")
+  status      WalletTransactionStatus @default(COMPLETED)
+  createdAt   DateTime               @default(now()) @map("created_at")
+
+  wallet    VendorWallet  @relation("WalletTransactions", fields: [vendorId], references: [vendorId], onDelete: Cascade)
+  order     Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  orderItem OrderItem?    @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+
+  @@index([vendorId])
+  @@index([orderId])
+  @@index([type])
+  @@index([status])
+  @@map("vendor_wallet_transaction")
+}
+
+model WithdrawalRequest {
+  id           Int                    @id @default(autoincrement())
+  vendorId     Int                    @map("vendor_id")
+  amount       Decimal                @db.Decimal(10, 2)
+  paymentMethod String                @map("payment_method")
+  accountDetails Json?                @map("account_details") @db.JsonB
+  status       WithdrawalRequestStatus
+  adminNotes   String?                @map("admin_notes")
+  processedBy  Int?                   @map("processed_by")
+  processedAt  DateTime?              @map("processed_at")
+  createdAt    DateTime               @default(now()) @map("created_at")
+  updatedAt    DateTime               @updatedAt @map("updated_at")
+
+  vendor      Vendor  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  processor   User?   @relation("WithdrawalProcessor", fields: [processedBy], references: [id], onDelete: SetNull)
+
+  @@index([vendorId])
+  @@index([status])
+  @@map("withdrawal_request")
+}
+

@@ -1,0 +1,157 @@
+// =====================================================
+// ENUMS FOR MULTIVENDOR E-COMMERCE PLATFORM
+// =====================================================
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum OtpPurpose {
+  LOGIN
+  REGISTER
+  FORGOT
+  VERIFY
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
+  REJECTED
+}
+
+enum ProductApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DiscountType {
+  FLAT
+  PERCENT
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum OrderStatus {
+  PLACED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum OrderItemStatus {
+  PLACED
+  CONFIRMED
+  PACKED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+enum PaymentProvider {
+  RAZORPAY
+  STRIPE
+  COD
+  PAYPAL
+  PAYTM
+}
+
+enum PaymentTransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum ShipmentStatus {
+  CREATED
+  PICKED_UP
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED
+  RETURNED
+}
+
+enum ReturnRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REFUNDED
+  PROCESSING
+}
+
+enum CancelRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum WalletTransactionType {
+  CREDIT
+  DEBIT
+  WITHDRAWAL
+  REFUND
+  ADJUSTMENT
+}
+
+enum WalletTransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum WithdrawalRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PROCESSED
+  FAILED
+}
+
+enum NotificationType {
+  ORDER
+  PROMO
+  SYSTEM
+  PAYMENT
+  SHIPMENT
+  REVIEW
+}
+
+enum CampaignType {
+  BANNER
+  EMAIL
+  SMS
+  PROMO
+  POPUP
+}
+
+enum CampaignScheduleType {
+  HOURLY
+  DAILY
+  WEEKLY
+  ONE_TIME
+  RECURRING
+}
+
+enum SettingType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
