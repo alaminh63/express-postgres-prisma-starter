@@ -1,0 +1,368 @@
+### ==========================================================
+### DOORLY AUTH API TESTING
+### Copy these requests to Thunder Client, Postman, or REST Client
+### ==========================================================
+
+@baseUrl = http://localhost:5000/api/auth
+@phone = +919876543210
+@otp = 123456
+
+### ==========================================================
+### 1. SEND OTP - Primary Entry Point
+### ==========================================================
+
+POST {{baseUrl}}/send-otp
+Content-Type: application/json
+
+{
+  "phone": "9876543210"
+}
+
+### Alternative formats (all work):
+# "phone": "+919876543210"
+# "phone": "09876543210"
+# "phone": "919876543210"
+
+### Expected Response:
+# {
+#   "status": 200,
+#   "success": true,
+#   "message": "OTP sent successfully",
+#   "data": {
+#     "phone": "+919876543210",
+#     "message": "OTP sent successfully",
+#     "expiresIn": 600,
+#     "purpose": "REGISTER" // or "LOGIN" for existing users
+#   }
+# }
+
+### NOTE: In development mode, check your console for the OTP!
+
+
+### ==========================================================
+### 2. VERIFY OTP - Login or Start Registration
+### ==========================================================
+
+POST {{baseUrl}}/verify-otp
+Content-Type: application/json
+
+{
+  "phone": "{{phone}}",
+  "otp": "{{otp}}"
+}
+
+### Expected Response (NEW USER):
+# {
+#   "status": 200,
+#   "success": true,
+#   "message": "OTP verified. Please complete your profile.",
+#   "data": {
+#     "userExists": false,
+#     "requiresRegistration": true,
+#     "phone": "+919876543210",
+#     "message": "OTP verified. Please complete your profile."
+#   }
+# }
+
+### Expected Response (EXISTING USER):
+# {
+#   "status": 200,
+#   "success": true,
+#   "message": "Login successful",
+#   "data": {
+#     "userExists": true,
+#     "requiresRegistration": false,
+#     "accessToken": "eyJhbGc...",
+#     "refreshToken": "eyJhbGc...",
+#     "user": {
+#       "id": 1,
+#       "name": "John Doe",
+#       "email": "john@example.com",
+#       "phone": "+919876543210",
+#       "role": "CUSTOMER",
+#       "isVerified": true,
+#       "profileImage": null
+#     }
+#   }
+# }
+
+
+### ==========================================================
+### 3. COMPLETE PROFILE - First-Time Registration
+### (Only call this if verify-otp returned requiresRegistration: true)
+### ==========================================================
+
+POST {{baseUrl}}/complete-profile
+Content-Type: application/json
+
+{
+  "phone": "{{phone}}",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "MySecurePass123",
+  "roleId": 2
+}
+
+### Minimal version (email & password optional):
+POST {{baseUrl}}/complete-profile
+Content-Type: application/json
+
+{
+  "phone": "{{phone}}",
+  "name": "Jane Doe"
+}
+
+### Expected Response:
+# {
+#   "status": 201,
+#   "success": true,
+#   "message": "Account created successfully",
+#   "data": {
+#     "accessToken": "eyJhbGc...",
+#     "refreshToken": "eyJhbGc...",
+#     "user": {
+#       "id": 2,
+#       "name": "John Doe",
+#       "email": "john@example.com",
+#       "phone": "+919876543210",
+#       "role": "CUSTOMER",
+#       "isVerified": true,
+#       "profileImage": null
+#     }
+#   }
+# }
+
+
+### ==========================================================
+### 4. EMAIL LOGIN - Faster Login for Returning Users
+### (Only works if user has set email + password)
+### ==========================================================
+
+POST {{baseUrl}}/login/email
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "MySecurePass123"
+}
+
+### Expected Response:
+# {
+#   "status": 200,
+#   "success": true,
+#   "message": "Login successful",
+#   "data": {
+#     "accessToken": "eyJhbGc...",
+#     "refreshToken": "eyJhbGc...",
+#     "user": { ... }
+#   }
+# }
+
+### Error Response (User Not Found):
+# {
+#   "status": 404,
+#   "success": false,
+#   "message": "No account found with this email. Please login with your phone number."
+# }
+
+
+### ==========================================================
+### 5. RESEND OTP - If User Didn't Receive OTP
+### ==========================================================
+
+POST {{baseUrl}}/resend-otp
+Content-Type: application/json
+
+{
+  "phone": "{{phone}}"
+}
+
+### Expected Response:
+# {
+#   "status": 200,
+#   "success": true,
+#   "message": "OTP resent successfully",
+#   "data": {
+#     "phone": "+919876543210",
+#     "message": "OTP resent successfully",
+#     "expiresIn": 600
+#   }
+# }
+
+### Rate Limit Error:
+# {
+#   "status": 429,
+#   "success": false,
+#   "message": "Too many resend requests. Please wait 1 minute."
+# }
+
+
+### ==========================================================
+### 6. GET CURRENT USER - Requires Authentication
+### (Replace YOUR_ACCESS_TOKEN with token from login response)
+### ==========================================================
+
+GET {{baseUrl}}/me
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+### Expected Response:
+# {
+#   "status": 200,
+#   "success": true,
+#   "message": "User data retrieved successfully",
+#   "data": {
+#     "id": 1,
+#     "name": "John Doe",
+#     "email": "john@example.com",
+#     "phone": "+919876543210",
+#     "role": "CUSTOMER",
+#     "roleId": 2,
+#     "isVerified": true,
+#     "profileImage": null,
+#     "status": "ACTIVE",
+#     "lastLogin": "2025-12-02T10:30:00.000Z",
+#     "createdAt": "2025-12-01T08:00:00.000Z"
+#   }
+# }
+
+### Error Response (No Token):
+# {
+#   "status": 401,
+#   "success": false,
+#   "message": "You are not authorized. No token provided."
+# }
+
+
+### ==========================================================
+### COMPLETE TEST FLOW - New User Registration via Phone
+### ==========================================================
+
+### Step 1: Send OTP
+POST {{baseUrl}}/send-otp
+Content-Type: application/json
+
+{
+  "phone": "8765432109"
+}
+
+### Step 2: Check console for OTP, then verify
+POST {{baseUrl}}/verify-otp
+Content-Type: application/json
+
+{
+  "phone": "+918765432109",
+  "otp": "YOUR_OTP_FROM_CONSOLE"
+}
+
+### Step 3: Complete profile (only if requiresRegistration: true)
+POST {{baseUrl}}/complete-profile
+Content-Type: application/json
+
+{
+  "phone": "+918765432109",
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "Test123"
+}
+
+### Step 4: Test the access token
+GET {{baseUrl}}/me
+Authorization: Bearer YOUR_ACCESS_TOKEN_FROM_STEP_3
+
+
+### ==========================================================
+### COMPLETE TEST FLOW - Existing User Login via Email
+### ==========================================================
+
+### Direct email login (if user has email + password)
+POST {{baseUrl}}/login/email
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test123"
+}
+
+### Then test the token
+GET {{baseUrl}}/me
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+
+### ==========================================================
+### ERROR SCENARIOS TO TEST
+### ==========================================================
+
+### Test 1: Invalid Phone Format
+POST {{baseUrl}}/send-otp
+Content-Type: application/json
+
+{
+  "phone": "123"
+}
+
+### Test 2: Wrong OTP
+POST {{baseUrl}}/verify-otp
+Content-Type: application/json
+
+{
+  "phone": "+919876543210",
+  "otp": "000000"
+}
+
+### Test 3: OTP Expired (wait 11 minutes after sending OTP)
+POST {{baseUrl}}/verify-otp
+Content-Type: application/json
+
+{
+  "phone": "+919876543210",
+  "otp": "123456"
+}
+
+### Test 4: Email Login Without Email Set
+POST {{baseUrl}}/login/email
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com",
+  "password": "Test123"
+}
+
+### Test 5: Rate Limit - Send OTP 4 times rapidly
+POST {{baseUrl}}/send-otp
+Content-Type: application/json
+
+{
+  "phone": "9876543210"
+}
+
+
+### ==========================================================
+### NOTES FOR TESTING
+### ==========================================================
+# 
+# 1. Development Mode:
+#    - OTP is printed to console (check terminal)
+#    - No SMS is actually sent
+#
+# 2. Rate Limits:
+#    - Send OTP: 3 requests/minute per phone
+#    - Verify OTP: 5 attempts/10 minutes per phone
+#    - Email Login: 5 attempts/5 minutes per email
+#    - Resend OTP: 2 requests/minute per phone
+#
+# 3. OTP Validity:
+#    - Each OTP expires in 10 minutes
+#    - Old OTPs are invalidated when new one is sent
+#
+# 4. Access Tokens:
+#    - Copy the accessToken from login responses
+#    - Use it in Authorization header for /me endpoint
+#
+# 5. Phone Formats (all valid):
+#    - "9876543210"
+#    - "+919876543210"
+#    - "919876543210"
+#    - "09876543210"
+#
+### ==========================================================
+

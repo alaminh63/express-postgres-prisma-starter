@@ -5,4 +5,6 @@
 export type TJwtPayload = {
   id: number
   email: string
+  phone: string
+  role: string
 }
